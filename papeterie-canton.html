@@ -1,0 +1,321 @@
+<title>Papeterie Canton</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Mise en page : une colonne de lecture, un glossaire filtrable, des phrases à copier. Single dark volontaire (look Agent Board). */
+:root{
+  color-scheme:dark;
+  --bg:#0c0b09; --dot:rgba(255,255,255,.075);
+  --panel:rgba(24,23,20,.84); --panel-2:rgba(36,34,30,.9); --panel-solid:#151412; --tile:#121110; --tile-head:#171614;
+  --line:rgba(255,255,255,.08); --line-2:rgba(255,255,255,.14); --line-3:rgba(255,255,255,.22);
+  --fg:#f3efe7; --fg-2:#aaa59b; --fg-3:#716d64;
+  --accent:#ff6a1f; --accent-2:#ffb547; --accent-soft:rgba(255,106,31,.16);
+  --ok:#5ee08a; --ok-soft:rgba(94,224,138,.14); --warn:#ffc83d; --bad:#ff5d5d; --bad-soft:rgba(255,93,93,.14); --paused:#8ea4ff;
+  --ui:"Inter",ui-sans-serif,system-ui,-apple-system,sans-serif; --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --shadow:0 10px 30px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.04) inset;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg)}
+body{color:var(--fg);font:14px/1.5 var(--ui);-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(var(--dot) 1px,transparent 1.2px);background-size:22px 22px;background-attachment:fixed}
+h1,h2,h3{margin:0;letter-spacing:-.02em}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card{background:var(--panel);backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.row{background:var(--tile);border:1px solid var(--line);border-radius:10px}
+.eyebrow{font:600 11px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--fg-3)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 12px;border-radius:10px;font-weight:600;font-size:13px;text-decoration:none;color:var(--fg);transition:transform .15s,background .2s,border-color .2s,filter .2s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--accent);color:#1a0d05}
+.btn.ghost{background:var(--panel-2);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--line-2)}
+.chip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:8px;font-size:12px;font-weight:600;background:var(--panel-2);border:1px solid var(--line);color:var(--fg-2)}
+.chip.accent{background:var(--accent-soft);border-color:transparent;color:var(--accent-2)}
+code,.mono{font-family:var(--mono);font-size:12.5px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* Page */
+body{padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+header h1{font-size:clamp(28px,6vw,40px);font-weight:800;line-height:1.05;text-wrap:balance;margin-top:12px}
+header p{color:var(--fg-2);font-size:15px;max-width:60ch;margin:12px 0 0}
+section{display:flex;flex-direction:column;gap:12px;min-width:0}
+h2{font-size:20px;font-weight:700}
+.lead{color:var(--fg-2);margin:0;max-width:65ch}
+.pad{padding:16px}
+
+/* Les 3 chiffres */
+.three{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.three .row{padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.three b{font-size:22px;font-weight:800;color:var(--accent-2);font-variant-numeric:tabular-nums}
+.three span{color:var(--fg-2);font-size:13px}
+
+/* Échelle GSM */
+.scale{position:relative;height:74px;margin:8px 4px 0}
+.scale .bar{position:absolute;left:0;right:0;top:30px;height:8px;border-radius:4px;background:linear-gradient(90deg,#3a3731,var(--accent-2) 55%,var(--accent))}
+.scale .m{position:absolute;top:0;transform:translateX(-50%);text-align:center;font-size:11px;line-height:1.25;color:var(--fg-2);width:78px}
+.scale .m i{display:block;width:2px;height:16px;background:var(--line-3);margin:2px auto 0}
+.scale .m.low{top:44px}
+.scale .m.low i{position:absolute;top:-14px;left:50%;height:12px;margin:0}
+.scale .m b{color:var(--fg);font-variant-numeric:tabular-nums}
+.scale-wrap{overflow-x:auto;padding-bottom:6px}
+.scale-in{min-width:560px}
+
+/* Anatomie */
+.anat{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
+.anat .row{padding:14px;min-width:0}
+.anat h3{font-size:14px;margin-bottom:4px}
+.anat p{margin:0;color:var(--fg-2);font-size:13px}
+
+/* Glossaire */
+.tools{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;flex-direction:column;gap:10px;padding:12px;background:var(--panel-solid);border:1px solid var(--line);border-radius:var(--r)}
+.tools input{width:100%;height:38px;border-radius:10px;border:1px solid var(--line-2);background:var(--tile);color:var(--fg);padding:0 12px;font:inherit}
+.tools input::placeholder{color:var(--fg-3)}
+.cats{display:flex;flex-wrap:wrap;gap:6px}
+.cats button{height:28px;padding:0 11px;border-radius:8px;font-size:12px;font-weight:600;background:var(--panel-2);border:1px solid var(--line);color:var(--fg-2)}
+.cats button[aria-pressed="true"]{background:var(--accent-soft);border-color:transparent;color:var(--accent-2)}
+.terms{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px}
+.term{padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.term .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.term h3{font-size:15px;font-weight:700;overflow-wrap:anywhere}
+.term .cat{font-size:10.5px;color:var(--fg-3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.term .fr{color:var(--accent-2);font-size:12.5px;font-weight:600}
+.term p{margin:0;color:var(--fg-2);font-size:13px}
+.term .tip{margin-top:2px;padding:8px 10px;border-radius:8px;background:var(--accent-soft);color:var(--fg);font-size:12.5px}
+.empty{padding:20px;color:var(--fg-2);text-align:center}
+
+/* Phrases */
+.say{display:flex;flex-direction:column;gap:8px}
+.say .row{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:10px 12px;min-width:0}
+.say .t{min-width:0}
+.say .en{font-weight:600;overflow-wrap:anywhere}
+.say .fr{color:var(--fg-3);font-size:12.5px}
+.say button{flex:none}
+
+/* Prix */
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:13px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-3);font-weight:600}
+td:first-child{font-weight:600;white-space:nowrap}
+td{color:var(--fg-2)}
+td:first-child{color:var(--fg)}
+
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+.cols .card{padding:16px;min-width:0}
+.cols h3{font-size:15px;margin-bottom:8px}
+ul{margin:0;padding-left:18px;color:var(--fg-2)}
+li{margin:4px 0}
+li b{color:var(--fg)}
+.good h3{color:var(--ok)} .bad h3{color:var(--bad)}
+footer{color:var(--fg-3);font-size:12px}
+</style>
+
+<div class="wrap">
+<header>
+  <span class="chip accent">Canton Fair · 5-7 novembre</span>
+  <h1>Parler papeterie avec les fournisseurs sans passer pour un touriste</h1>
+  <p>Pour Emilio et Damien. Le vocabulaire d'un carnet, la plupart des termes sont en anglais : papier, couverture, reliure, finitions, et les mots du business (MOQ, FOB…). À lire dans l'avion, à ressortir sur le stand.</p>
+</header>
+
+<section>
+  <h2>Les 3 réflexes</h2>
+  <div class="three">
+    <div class="row"><b>GSM</b><span>Le poids du papier (g/m²). Ce n'est pas l'épaisseur. Premier chiffre à demander.</span></div>
+    <div class="row"><b>Pages ≠ feuilles</b><span>1 feuille (leaf) = 2 pages. « 100 sheets » = 200 pages. Toujours faire préciser.</span></div>
+    <div class="row"><b>Spec complète</b><span>Papier + couverture + reliure + finitions + quantité. Sans ça, aucun prix n'est comparable.</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>Le GSM en un coup d'œil</h2>
+  <p class="lead">GSM = grams per square meter. Plus c'est haut, plus le papier est lourd et rigide, donc moins il laisse traverser l'encre. Repères pour des pages intérieures de carnet :</p>
+  <div class="card pad scale-wrap"><div class="scale-in"><div class="scale">
+    <div class="bar"></div>
+    <div class="m" style="left:6%"><b>70</b><br>bas de gamme<i></i></div>
+    <div class="m low" style="left:19%"><b>80</b><br>papier bureau</div>
+    <div class="m" style="left:33%"><b>100</b><br>bon carnet<i></i></div>
+    <div class="m low" style="left:50%"><b>120</b><br>stylo plume, premium</div>
+    <div class="m" style="left:68%"><b>160</b><br>aquarelle légère<i></i></div>
+    <div class="m low" style="left:86%"><b>250-350</b><br>carton, couverture souple</div>
+  </div></div></div>
+  <div class="row pad"><b>À retenir :</b> <span style="color:var(--fg-2)">à GSM égal, deux papiers peuvent être très différents. L'épaisseur (caliper, en microns) et la sensation changent selon la fabrication. Demandez un échantillon et testez au stylo.</span></div>
+</section>
+
+<section>
+  <h2>Anatomie d'un carnet</h2>
+  <div class="anat">
+    <div class="row"><h3>1. Les pages intérieures (inner pages / text block)</h3><p>Le papier, son GSM, sa couleur (blanc, ivoire), son motif (ligné, pointillé, blanc). Se regroupent en cahiers (signatures) de 16 ou 32 pages.</p></div>
+    <div class="row"><h3>2. La couverture (cover)</h3><p>Rigide (hardcover) ou souple (softcover). Rigide = carton gris (greyboard, 1,5 à 3 mm) recouvert d'une matière : PU, tissu, papier…</p></div>
+    <div class="row"><h3>3. La reliure (binding)</h3><p>Comment les pages tiennent : cousues, collées, spirale, agrafées. C'est ce qui fait qu'un carnet dure ou se disloque, et s'il s'ouvre à plat.</p></div>
+    <div class="row"><h3>4. Les finitions (finishing)</h3><p>Dorure, gaufrage, vernis sélectif, tranche colorée, gravure laser. C'est la partie « marque » et c'est elle qui fait grimper le prix.</p></div>
+    <div class="row"><h3>5. Les accessoires</h3><p>Élastique, marque-page ruban, porte-stylo, pochette arrière, coins arrondis, autocollants.</p></div>
+    <div class="row"><h3>6. L'emballage (packaging)</h3><p>Sachet, film rétractable (shrink wrap), bandeau (belly band), étiquette (hang tag), boîte cadeau (gift box).</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Glossaire</h2>
+  <div class="tools">
+    <input id="q" type="search" placeholder="Chercher un terme (ex : GSM, cousu, PU, MOQ…)" autocomplete="off" aria-label="Chercher un terme">
+    <div class="cats" id="cats"></div>
+  </div>
+  <div class="terms" id="terms"></div>
+</section>
+
+<section>
+  <h2>Phrases à sortir sur le stand</h2>
+  <p class="lead">En anglais, prêtes à lire ou à copier dans WeChat / WhatsApp. Elles montrent que vous savez ce que vous cherchez.</p>
+  <div class="say" id="say"></div>
+</section>
+
+<section>
+  <h2>Ce qui fait varier le prix</h2>
+  <div class="card tbl"><table>
+    <thead><tr><th>Levier</th><th>Effet sur le prix</th><th>Ce qu'il faut demander</th></tr></thead>
+    <tbody>
+      <tr><td>Nombre de pages</td><td>Direct : plus de pages, plus de papier et de coût</td><td>Pages ou feuilles ? 160, 192, 200 ?</td></tr>
+      <tr><td>GSM du papier</td><td>Fort : 100 g coûte nettement plus que 70 g</td><td>GSM exact, couleur, FSC ou non</td></tr>
+      <tr><td>Matière de couverture</td><td>Fort : PU &lt; tissu &lt; cuir véritable</td><td>Matière, épaisseur, grain, doublure</td></tr>
+      <tr><td>Reliure</td><td>Moyen : cousu coûte plus que collé</td><td>Cousu (thread-sewn) ou collé ? Colle PUR ou hot melt ?</td></tr>
+      <tr><td>Finitions</td><td>Moyen à fort, plus des frais d'outillage</td><td>Combien de finitions, quelle taille de logo, frais de moule</td></tr>
+      <tr><td>Quantité</td><td>Fort : le prix baisse par paliers</td><td>Prix à 500 / 1 000 / 3 000 pièces</td></tr>
+      <tr><td>Emballage</td><td>Moyen : boîte cadeau = gros écart</td><td>Emballage inclus dans le prix ?</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Sur place</h2>
+  <div class="cols">
+    <div class="card good pad"><h3>À faire</h3><ul>
+      <li>Demander <b>l'échantillon</b> du modèle exposé et noter le numéro de stand.</li>
+      <li>Tester le papier au stylo plume, gel et feutre : <b>ghosting</b> (on voit l'encre derrière), <b>bleed-through</b> (ça traverse), <b>feathering</b> (ça bave).</li>
+      <li>Ouvrir le carnet à plat, plier la couverture, tirer doucement sur l'élastique.</li>
+      <li>Regarder la tranche : cahiers cousus visibles ou bloc collé.</li>
+      <li>Toujours demander le prix en <b>FOB</b> avec le port de départ.</li>
+      <li>Prendre carte de visite + photo de l'étiquette ou du catalogue.</li>
+    </ul></div>
+    <div class="card bad pad"><h3>À éviter</h3><ul>
+      <li>Comparer deux prix sans avoir la même spec (GSM, pages, reliure).</li>
+      <li>Annoncer une quantité sans savoir ce que fait le MOQ à la baisse.</li>
+      <li>Croire « leather » : demander <b>genuine leather</b> ou <b>PU</b>. PU, c'est du synthétique, et c'est très bien pour un carnet.</li>
+      <li>Accepter « same quality » à l'oral : exiger un échantillon pré-série (PPS) avant la production de masse.</li>
+      <li>Valider un logo sans avoir vu le <b>mockup</b> et les frais de moule.</li>
+    </ul></div>
+  </div>
+</section>
+
+<footer>Repères généraux de l'industrie, à confirmer fournisseur par fournisseur : les épaisseurs, MOQ et délais varient beaucoup d'une usine à l'autre.</footer>
+</div>
+
+<script>
+const TERMS=[
+// Papier
+{c:'Papier',en:'GSM',fr:'grammage',d:'Grams per square meter : le poids d\'une feuille d\'1 m². C\'est la mesure de référence du papier.',t:'Pages de carnet : 80 = bureau, 100 = bien, 120 = stylo plume.'},
+{c:'Papier',en:'Caliper / thickness',fr:'épaisseur',d:'L\'épaisseur réelle du papier, en microns (µm). Deux papiers au même GSM peuvent avoir des épaisseurs différentes.'},
+{c:'Papier',en:'Bulk',fr:'volume, main',d:'Papier « gonflant » : épais pour son poids. Donne un carnet plus épais à GSM égal.'},
+{c:'Papier',en:'Opacity',fr:'opacité',d:'Capacité du papier à ne pas laisser voir le texte au verso. Plus c\'est haut, mieux c\'est.'},
+{c:'Papier',en:'Ghosting / bleed-through',fr:'transparence / traversée',d:'Ghosting : on devine l\'encre de l\'autre côté. Bleed-through : l\'encre traverse vraiment. Les deux disent « papier trop fin ».'},
+{c:'Papier',en:'Feathering',fr:'bavure',d:'L\'encre s\'étale en petites fibres autour du trait. Signe d\'un papier trop absorbant.'},
+{c:'Papier',en:'Uncoated / woodfree',fr:'non couché',d:'Papier sans couche brillante, celui d\'un carnet classique, agréable à l\'écriture. À l\'opposé du papier couché (coated / art paper), glacé, mauvais pour écrire.'},
+{c:'Papier',en:'Ivory / cream / natural white',fr:'ivoire / crème',d:'Papier légèrement jaune, plus doux pour les yeux, vendu comme « premium ». Le blanc pur est « bright white ».'},
+{c:'Papier',en:'Cotton paper',fr:'papier coton',d:'Papier dont les fibres viennent du coton, pas du bois. Très doux, solide, haut de gamme. Demander le pourcentage (25 %, 100 % cotton « rag »).'},
+{c:'Papier',en:'Recycled / FSC / stone paper',fr:'recyclé / FSC / papier de pierre',d:'FSC = bois de forêts gérées durablement (certificat). Stone paper = poudre de calcaire + résine, sans arbre ni eau, très lisse, un peu synthétique.'},
+{c:'Papier',en:'Grain direction',fr:'sens des fibres',d:'Les fibres du papier vont dans un sens. Mal orienté, le carnet s\'ouvre mal ou gondole. Bonne usine : « long grain » (fibres parallèles au dos).'},
+{c:'Papier',en:'Ruling: lined, dot grid, grid, blank',fr:'ligné, pointillé, quadrillé, uni',d:'Le motif imprimé sur les pages. Dot grid = points tous les 5 mm. Lined = lignes tous les 6-8 mm. Grid = carreaux.'},
+// Couverture
+{c:'Couverture',en:'Hardcover / softcover',fr:'couverture rigide / souple',d:'Hardcover : carton épais recouvert. Softcover : couverture flexible, plus légère et moins chère. Aussi appelé « flexi cover ».'},
+{c:'Couverture',en:'Greyboard / binder\'s board',fr:'carton gris',d:'Le carton dur à l\'intérieur d\'une couverture rigide. Se compte en mm : 1,5 (souple), 2 (standard), 2,5-3 (très rigide).',t:'Question rigidité : « What\'s the board thickness? »'},
+{c:'Couverture',en:'PU leather',fr:'simili cuir polyuréthane',d:'Cuir synthétique (polyuréthane). Souple, au toucher plus proche du vrai cuir que le PVC. Le plus courant en carnet.'},
+{c:'Couverture',en:'PVC leather',fr:'simili cuir PVC',d:'Cuir synthétique plus rigide et plus économique, qui vieillit moins bien. À éviter pour du premium.'},
+{c:'Couverture',en:'Genuine / bonded / vegan leather',fr:'cuir véritable / reconstitué / vegan',d:'Genuine : vrai cuir (souvent la couche inférieure). Bonded : chutes de cuir collées, bas de gamme. Vegan : synthétique vendu sans cuir animal.'},
+{c:'Couverture',en:'Cotton cloth / book cloth / linen',fr:'toile coton / toile de reliure / lin',d:'Tissu pour couverture, avec un papier collé au dos pour le rigidifier. Aspect naturel, plus « artisan ».'},
+{c:'Couverture',en:'Polyester / canvas',fr:'polyester / toile',d:'Tissu synthétique, résistant et lavable. Se décrit en denier (D) pour le fil (600D = robuste) et en GSM ou oz pour le tissu.'},
+{c:'Couverture',en:'Denier (D)',fr:'denier',d:'Finesse du fil polyester ou nylon. Plus le chiffre est haut, plus le fil est gros et le tissu robuste : 300D léger, 600D solide.'},
+{c:'Couverture',en:'Kraft / paperboard',fr:'kraft / carton',d:'Couverture en carton ou papier épais, 250-350 gsm. Économique et écolo, pour carnets souples.'},
+{c:'Couverture',en:'Lamination (matte, gloss, soft-touch)',fr:'pelliculage',d:'Film plastique collé sur la couverture papier. Soft-touch = effet velours très demandé. Protège des rayures.'},
+// Reliure
+{c:'Reliure',en:'Thread-sewn / Smyth-sewn',fr:'cousu',d:'Les cahiers sont cousus ensemble. Solide, s\'ouvre à plat, dure des années. Signe de qualité.',t:'À demander : « Is it thread-sewn or glued? »'},
+{c:'Reliure',en:'Perfect bound',fr:'dos collé',d:'Pages collées au dos, sans couture. Moins cher mais peut se décoller, et s\'ouvre moins à plat.'},
+{c:'Reliure',en:'PUR glue vs hot melt (EVA)',fr:'colle PUR / colle chaude',d:'PUR est la colle forte, souple et durable. Hot melt est plus courante et plus cassante.'},
+{c:'Reliure',en:'Lay-flat',fr:'ouverture à plat',d:'Le carnet reste ouvert à plat sans se refermer. Pour l\'écriture, c\'est un argument de vente.'},
+{c:'Reliure',en:'Wire-o / spiral (coil)',fr:'double boucle / spirale',d:'Wire-o : double anneau métal. Spiral : coil plastique ou métal. Pages qui se retournent à 360°.'},
+{c:'Reliure',en:'Saddle stitch',fr:'piqûre à cheval',d:'Agrafes au milieu du pli. Pour les petits carnets de 20-60 pages seulement.'},
+{c:'Reliure',en:'Exposed spine / Coptic / Japanese stab',fr:'dos apparent / copte / japonaise',d:'Reliures où la couture se voit. Look artisanal, ouverture à plat. Plus long à produire, donc plus cher.'},
+{c:'Reliure',en:'Signature',fr:'cahier',d:'Un groupe de feuilles pliées ensemble, généralement 16 ou 32 pages. Le nombre de pages est un multiple de ce nombre.'},
+{c:'Reliure',en:'Case-bound',fr:'relié, couverture cartonnée',d:'La façon de monter une couverture rigide sur un bloc de pages cousu ou collé.'},
+// Finitions
+{c:'Finitions',en:'Hot foil stamping',fr:'dorure à chaud',d:'Un film métallique (or, argent, rose, noir) appliqué à chaud avec un moule. Pour les logos.'},
+{c:'Finitions',en:'Deboss / emboss / blind deboss',fr:'creux / relief / creux sans couleur',d:'Deboss : logo pressé en creux. Emboss : en relief. Blind : sans couleur, juste la forme. Élégant, donne un effet haut de gamme.'},
+{c:'Finitions',en:'Spot UV',fr:'vernis sélectif',d:'Vernis brillant posé sur une partie précise d\'une couverture mate. Effet moderne.'},
+{c:'Finitions',en:'Silk screen / screen print',fr:'sérigraphie',d:'Impression d\'encre épaisse au travers d\'un écran. Marche sur tissu, cuir, PU. Bon pour les aplats.'},
+{c:'Finitions',en:'Laser engraving',fr:'gravure laser',d:'Gravure d\'un logo au laser. Sans moule, idéale pour de petites quantités, sur PU, cuir, bois.'},
+{c:'Finitions',en:'Edge painting / gilded edges',fr:'tranche colorée / dorée',d:'Tranche du bloc de pages peinte en couleur ou en or (gilding). Un détail qui fait un carnet premium.'},
+{c:'Finitions',en:'Die-cut',fr:'découpe',d:'Forme découpée à la presse : coins arrondis (round corner), fenêtre, onglets.'},
+{c:'Finitions',en:'Pantone (PMS)',fr:'nuancier Pantone',d:'Référence de couleur universelle. Donner le code (ex : PMS 1655 C) évite les « presque ».'},
+// Accessoires
+{c:'Accessoires',en:'Elastic closure / band',fr:'élastique de fermeture',d:'L\'élastique qui garde le carnet fermé. Couleur à assortir.'},
+{c:'Accessoires',en:'Ribbon bookmark',fr:'marque-page ruban',d:'Le ruban cousu au dos. On parle d\'un ou de deux rubans.'},
+{c:'Accessoires',en:'Pen loop',fr:'porte-stylo',d:'Boucle en tissu ou en PU pour tenir un stylo sur le côté.'},
+{c:'Accessoires',en:'Back pocket / gusset pocket',fr:'pochette arrière',d:'Pochette collée à l\'intérieur de la couverture, pour des papiers. Gusset : pochette à soufflet.'},
+{c:'Accessoires',en:'Perforated pages',fr:'pages détachables',d:'Pages prédécoupées pour les arracher proprement.'},
+{c:'Accessoires',en:'Stickers / index tabs',fr:'autocollants / onglets',d:'Feuilles de stickers ou onglets de séparation pour planners.'},
+// Business
+{c:'Business',en:'MOQ',fr:'quantité minimum',d:'Minimum Order Quantity. À demander par design et par couleur : c\'est souvent 500 à 3 000 pièces, parfois moins sur du stock.',t:'Toujours demander « per design and per colour ? »'},
+{c:'Business',en:'OEM / ODM',fr:'fabrication sur mesure / modèle de l\'usine',d:'OEM : l\'usine fabrique votre design. ODM : vous choisissez un de ses modèles et vous y mettez votre marque.'},
+{c:'Business',en:'Stock item / custom',fr:'article en stock / sur mesure',d:'Stock : déjà fabriqué, petit MOQ, peu de personnalisation. Custom : fait pour vous, MOQ plus élevé.'},
+{c:'Business',en:'Sample / PPS',fr:'échantillon / pré-série',d:'Sample : un exemplaire avant commande. PPS (pre-production sample) : la validation finale avant la production de masse. Ne jamais sauter.'},
+{c:'Business',en:'Mass production / lead time',fr:'production de masse / délai',d:'Lead time : délai de fabrication, souvent 25 à 45 jours après le paiement de l\'acompte.'},
+{c:'Business',en:'Tooling / mold fee',fr:'frais de moule / outillage',d:'Frais uniques pour fabriquer le moule de dorure ou de gaufrage. Parfois remboursés au-delà d\'une certaine quantité : demander.'},
+{c:'Business',en:'FOB / EXW / CIF',fr:'incoterms',d:'FOB : l\'usine livre sur le bateau au port chinois. EXW : départ usine, vous gérez tout. CIF : transport et assurance inclus jusqu\'à votre port.',t:'Comparer les prix tous en FOB.'},
+{c:'Business',en:'Proforma invoice (PI)',fr:'facture proforma',d:'Le devis officiel avec spec, prix, délai et conditions de paiement. À relire ligne par ligne avant de payer.'},
+{c:'Business',en:'Deposit / balance (T/T)',fr:'acompte / solde (virement)',d:'Habituel : 30 % à la commande, 70 % avant l\'expédition, par virement (T/T).'},
+{c:'Business',en:'Tolerance (±)',fr:'tolérance',d:'Écart accepté sur les dimensions ou les couleurs (±2 mm, ±5 % de quantité). À écrire sur la PI.'},
+{c:'Business',en:'AQL / inspection',fr:'contrôle qualité',d:'Acceptable Quality Limit : le taux de défauts toléré lors d\'un contrôle d\'un lot. Un contrôle tiers avant expédition est possible.'},
+{c:'Business',en:'Carton (CTN) / CBM / GW / NW',fr:'carton / volume / poids brut / net',d:'Pièces par carton, volume du colis en m³, poids brut et net. Servent à calculer le transport.'},
+{c:'Business',en:'Mockup / artwork / dieline',fr:'maquette / fichier / gabarit',d:'Mockup : rendu visuel de votre logo sur le produit. Artwork : votre fichier vectoriel. Dieline : le gabarit de découpe.'},
+{c:'Business',en:'Size: A5, A6, B6, pocket',fr:'formats',d:'A5 = 148×210 mm (le plus courant), A6 = 105×148, B6 = 125×176, A4 = 210×297. Donnez toujours les mm.'}
+];
+const SAY=[
+['What\'s the GSM of the inner paper?','Quel grammage pour les pages intérieures ?'],
+['Is the notebook thread-sewn or glued? Does it lay flat?','Cousu ou collé ? Il s\'ouvre à plat ?'],
+['Is the cover PU or genuine leather? What\'s the board thickness?','Couverture en PU ou en vrai cuir ? Quelle épaisseur de carton ?'],
+['Does the paper handle fountain pen and gel pen? Any ghosting or bleed-through?','Le papier tient au stylo plume et au gel ? Pas de traversée ?'],
+['Is the paper FSC certified?','Papier certifié FSC ?'],
+['How many pages: pages or sheets?','Combien de pages : pages ou feuilles ?'],
+['What\'s your MOQ per design and per colour?','Quel MOQ par design et par couleur ?'],
+['Can I get a sample with my logo? How long and how much?','Un échantillon avec mon logo ? Délai et prix ?'],
+['What\'s the tooling cost for the foil stamping, and is it refundable?','Frais de moule pour la dorure, remboursables ?'],
+['What\'s the lead time for mass production after deposit?','Délai de production après l\'acompte ?'],
+['Please quote FOB Shenzhen (or Guangzhou) at 500, 1 000 and 3 000 pcs.','Prix FOB à 500, 1 000, 3 000 pièces.'],
+['Do you do OEM, or only your own models?','Vous faites du sur mesure, ou seulement vos modèles ?'],
+['Can you send a pre-production sample before mass production?','Un échantillon de pré-série avant la production ?'],
+['Can I have your catalogue and a WeChat contact?','Votre catalogue et un contact WeChat ?']
+];
+const $=s=>document.querySelector(s);
+const cats=['Tout',...new Set(TERMS.map(t=>t.c))];
+let cat='Tout';
+const esc=s=>s.replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const norm=s=>s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+function renderCats(){
+  $('#cats').innerHTML=cats.map(c=>`<button type="button" aria-pressed="${c===cat}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
+}
+function render(){
+  const q=norm($('#q').value.trim());
+  const list=TERMS.filter(t=>(cat==='Tout'||t.c===cat)&&(!q||norm([t.en,t.fr,t.d,t.t||''].join(' ')).includes(q)));
+  $('#terms').innerHTML=list.length?list.map(t=>`<article class="term row"><div class="top"><h3>${esc(t.en)}</h3><span class="cat">${esc(t.c)}</span></div><span class="fr">${esc(t.fr)}</span><p>${esc(t.d)}</p>${t.t?`<div class="tip">${esc(t.t)}</div>`:''}</article>`).join(''):'<div class="empty card" style="grid-column:1/-1">Rien trouvé. Essayez un autre mot, ou « Tout ».</div>';
+}
+$('#cats').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;cat=b.dataset.c;renderCats();render()});
+$('#q').addEventListener('input',render);
+$('#say').innerHTML=SAY.map((s,i)=>`<div class="row"><div class="t"><div class="en">${esc(s[0])}</div><div class="fr">${esc(s[1])}</div></div><button type="button" class="btn ghost" data-i="${i}">Copier</button></div>`).join('');
+$('#say').addEventListener('click',async e=>{
+  const b=e.target.closest('button');if(!b)return;
+  const txt=SAY[b.dataset.i][0];
+  try{await navigator.clipboard.writeText(txt);b.textContent='Copié ✓'}catch(_){
+    const r=document.createRange();r.selectNodeContents(b.closest('.row').querySelector('.en'));const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Sélectionné'}
+  setTimeout(()=>b.textContent='Copier',1400);
+});
+renderCats();render();
+</script>
